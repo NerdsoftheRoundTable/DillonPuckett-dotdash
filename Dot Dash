@@ -1,0 +1,538 @@
+{var transparency = 0;
+var titlesize = 550;
+var titlex = 10;
+var titley = 330;
+var timer = 0;
+var linex = 0;
+var linesize = 0;}
+var pageOnTopList = "14th page";
+var gameScreen = 0;
+var trail1x = 0; //The x positions of the trails (The jet of air from behind the square)
+var trail2x = 0;
+var trail3x = 0;
+var y = 150; //Y position of the square
+var speed = 1; //Speed of the dots
+var dots = []; //Array of dots.
+var backgroundcounter = 0;
+var primaryColor = color(48, 179, 64);
+var lifetime = 0;// The points
+var paused = false;
+var leaves = [];
+var highscore = 0;
+for(var i = 0; i < 100; i++) {
+    leaves.push({x:random(0,400),y:0-100*i,rotation:random(0,360)});
+}
+var hoppers = [];
+for(var i = 0; i < 100; i++) {
+    hoppers.push({x:random(0,400),y:0-100*i});
+}
+for(var i = 0; i < 500; i++) {
+    dots.push({x:400+i*100,y:random(50,350)}); // 500 dots please.
+}
+var osize = 0; //Size of the dot in the O
+var transparency1 = 255;
+var transparency2 = 0;
+var transparencytimer = 0;
+var home = function() {
+    background(48, 179, 64);
+    fill(255, 211, 99);
+    noStroke();
+    textSize(45);
+    text("Dot Dash",125,215);
+    textSize(15);
+    fill(255, 211, 99,transparency1);
+    text("by πceratops",160,380);
+    fill(255, 211, 99,transparency2);
+    text(pageOnTopList + " on the top list",140,380);
+    transparencytimer++;
+    if(transparencytimer>300) {
+        transparencytimer = 0;
+    }
+    if(transparencytimer<150) {
+        if(transparency1>0) {
+            transparency1-=2;
+        }
+        if(transparency2<255) {
+            transparency2+=2;
+        }
+    } else {
+        if(transparency2>0) {
+            transparency2-=2;
+        }
+        if(transparency1<255) {
+            transparency1+=2;
+        }
+    }
+    textSize(20);
+    textSize(45);
+    stroke(40, 153, 53);
+    if(mouseX>225.5&&mouseX<312.5&&mouseY>260&&mouseY<350) {
+        if(mouseIsPressed) {
+            gameScreen = 2;
+        }
+        stroke(28, 107, 36);
+    }
+    noFill();
+    ellipse(267.5,305,90,90);
+    fill(40, 153, 53);
+    noStroke();
+    triangle(250,275,300,305,250,335);
+    stroke(40, 153, 53);
+    if(mouseX>105&&mouseX<195&&mouseY>260&&mouseY<350) {
+        if(mouseIsPressed) {
+            gameScreen = 4;
+        }
+        stroke(28, 107, 36);
+    }
+    noFill();
+    ellipse(150,305,90,90);
+    line(130,290,170,290);
+    line(130,305,170,305);
+    line(130,320,170,320);
+    fill(40, 153, 53);
+    noStroke();
+    fill(255, 211, 99);
+    if((mouseX>105&&mouseX<195&&mouseY>260&&mouseY<350)||(mouseX>225.5&&mouseX<312.5&&mouseY>260&&mouseY<350)) {
+        cursor(HAND);
+    } else {
+        this.cursor();
+    }
+    ellipse(170,202.5,osize,osize);
+    osize++;
+    if(osize>20) {
+        osize = 0;
+    }
+    rect(170,y-100,75,75,5);
+    stroke(255,211,99,200);
+    strokeWeight(5);
+    line(160,y+-80,160-trail1x,y-80);
+    trail1x++;
+    if(trail1x>50) {
+        trail1x=0;
+    }
+    line(160,y-65,160-trail2x,y-65);
+    trail2x+=0.75;
+    if(trail2x>50) {
+        trail2x=0;
+    }
+    line(160,y-50,160-trail3x,y-50);
+    trail3x+=1.75;
+    if(trail3x>50) {
+        trail3x=0;
+    }
+    y = 165;
+    fill(48,179,64);
+    noStroke();
+    ellipse(230,y-80,10,10);
+    stroke(48,179,64);
+    noFill();
+    arc(235,y-60,30,20,-310,-200);
+    fill(255, 255, 255,20);
+    noStroke();
+    triangle(400,0,400,400,220,400);
+};
+var thegreen = function() {//The Green Level
+    stroke(255,211,99,200);
+    strokeWeight(5);
+    textSize(30);
+    text("The Green",220,50);
+    textSize(20);
+    text("Level 1",220,80);
+    textSize(50);
+    line(70,y+20,70-trail1x,y+20);
+    trail1x+=speed;
+    if(trail1x>50) {
+        trail1x=0;
+    }
+    line(70,y+35,70-trail2x,y+35);
+    trail2x+=0.75*speed;
+    if(trail2x>50) {
+        trail2x=0;
+    }
+    line(70,y+50,70-trail3x,y+50);
+    trail3x+=1.75*speed;
+    if(trail3x>50) {
+        trail3x=0;
+    }    
+};
+var nyansquare = function() {
+    primaryColor = color(8, 0, 115);
+    textSize(30);
+    text("Nyan Square",220,50);
+    textSize(20);
+    text("Level 4",220,80);
+    textSize(50);
+    //Nyan trails
+    if(round(millis()/(1250/speed))%2===0) {
+        for(var i = 0; i < 8; i++) {
+            if(i%2===0&&!paused) {
+                fill(255, 0, 0);
+                rect(70-i*10,y+10,10,10);
+                fill(255, 119, 0);
+                rect(70-i*10,y+20,10,10);
+                fill(255, 234, 0);
+                rect(70-i*10,y+30,10,10);
+                fill(0, 255, 0);
+                rect(70-i*10,y+40,10,10);
+                fill(119, 0, 255);
+                rect(70-i*10,y+50,10,10);
+            } else if(!paused) {
+                fill(255, 0, 0);
+                rect(70-i*10,y+15,10,10);
+                fill(255, 119, 0);
+                rect(70-i*10,y+25,10,10);
+                fill(255, 234, 0);
+                rect(70-i*10,y+35,10,10);
+                fill(0, 255, 0);
+                rect(70-i*10,y+45,10,10);
+                fill(119, 0, 255);
+                rect(70-i*10,y+55,10,10);
+            }
+        }
+    } else {
+        for(var i = 0; i < 8; i++) {
+            if(i%2===0&&!paused) {
+                fill(255, 0, 0);
+                rect(70-i*10,y+15,10,10);
+                fill(255, 119, 0);
+                rect(70-i*10,y+25,10,10);
+                fill(255, 234, 0);
+                rect(70-i*10,y+35,10,10);
+                fill(0, 255, 0);
+                rect(70-i*10,y+45,10,10);
+                fill(119, 0, 255);
+                rect(70-i*10,y+55,10,10);
+            } else if(!paused) {
+                fill(255, 0, 0);
+                rect(70-i*10,y+10,10,10);
+                fill(255, 119, 0);
+                rect(70-i*10,y+20,10,10);
+                fill(255, 234, 0);
+                rect(70-i*10,y+30,10,10);
+                fill(0, 255, 0);
+                rect(70-i*10,y+40,10,10);
+                fill(119, 0, 255);
+                rect(70-i*10,y+50,10,10);
+            }
+        }
+    }
+};
+var electricblue = function() { //Electric Blue Level
+    primaryColor = color(9, 0, 255);
+    textSize(30);
+    text("Electric Blue",220,50);
+    textSize(20);
+    text("Level 3",220,80);
+    textSize(50);
+    stroke(255,211,99,200);
+    line(0,-5+random(0,10),400,-5+random(0,10));
+    line(0,395+random(0,10),400,395+random(0,10));
+    strokeWeight(5);
+    line(70,y+random(20,40),20,y+random(20,40));
+    line(70,y+random(25,45),20,y+random(25,45));
+    line(70,y+random(30,50),20,y+random(30,50));
+    if(mouseY<40||mouseY>355) {
+        gameScreen = 3;
+    }
+};
+var hotpink = function() { //Hot Pink Level
+    primaryColor = color(255, 0, 102);
+    textSize(30);
+    text("Hot Pink",220,50);
+    textSize(20);
+    text("Level 2",220,80);
+    textSize(50);
+    stroke(255,211,99,200);
+    strokeWeight(5);
+    line(70,y+random(20,40),20,y+random(20,40));
+    line(70,y+random(30,50),20,y+random(30,50));
+    line(70,y+random(40,60),20,y+random(40,60));
+    for(var i = 0; i < leaves.length; i++) {
+        leaves[i].rotation++;
+        pushMatrix();
+        rotate(leaves[i].rotation);
+        image(getImage("avatars/leaf-red"),leaves[i].x,leaves[i].y,50,50);
+        popMatrix();
+        leaves[i].y++;
+        if(y>450) {
+            leaves[i].y = 0-100*i;
+        }
+    }
+};
+var bubblex = 70;
+var bubblesize = 0;
+var bubbley = -10;
+var bluesea = function() {//The Green Level
+    primaryColor = color(48, 153, 179);
+    stroke(255,211,99,200);
+    strokeWeight(5);
+    textSize(30);
+    text("Blue Sea",220,50);
+    textSize(20);
+    text("Level 5",220,80);
+    textSize(50);
+    noStroke();
+    fill(0, 174, 255);
+    ellipse(bubblex+60,y+bubbley,bubblesize,bubblesize);
+    if(bubblesize<40) {
+        bubblesize++;
+    } else {
+        bubblesize = 0;
+    }
+    if(bubbley>-50) {
+        bubbley--;
+        bubblex += random(-2,2);
+    } else {
+        bubblex = 70;
+        bubbley = -10;
+    }
+    for(var i = 0; i < hoppers.length; i++) {
+        image(getImage("creatures/Hopper-Jumping"),hoppers[i].x,hoppers[i].y,50,50);
+        hoppers[i].y+=2;
+        if(y>450) {
+            hoppers[i].y = 0-100*i;
+        }
+    }
+    fill(48, 153, 179,100);
+    rect(0,0,400,400);
+};
+var candyexplorer = function() {
+    primaryColor = color(0, 196, 255);
+    fill(255, 0, 0);
+    stroke(0, 0, 0);
+    strokeWeight(3);
+    rect(80,y,75,75);
+    
+    noStroke();
+    fill(255, 255, 255);
+    ellipse(100,y+24,15,15);
+    ellipse(135,y+24,15,15);
+};
+var invisible = function() {
+    primaryColor = color(48, 179, 64);
+    fill(48, 179, 64);
+    rect(80,y,75,75,5);  
+};
+var play = function() {
+    background(primaryColor);
+    if(paused) {
+        fill(255, 255, 255,50);
+        rect(0,0,400,400);
+    }
+    fill(255, 211, 99);
+    noStroke();
+    rect(80,y,75,75,5);//Square
+    text(lifetime,20,50);//Points
+    if(mouseY>35&&mouseY<365) {
+        y = mouseY-35;//Limits
+    }
+    fill(primaryColor);
+    noStroke();
+    ellipse(140,y+20,10,10);
+    stroke(primaryColor);
+    noFill();
+    arc(145,y+40,30,20,-310,-200);
+    //Increase speed every now and then
+    if(dots[0].x%400===0&&!paused) {
+        if(lifetime<45) {
+            speed++;
+        } else if(lifetime<75) {
+            speed+=0.4;
+        } else if(lifetime<90) {
+            speed+=0.2;
+        } else {
+            speed+=0.1;
+        }
+        if(lifetime>140) {
+            speed+=0.4;
+        }
+    }
+    for(var i = 0; i < dots.length; i++) {
+        noStroke();
+        if(lifetime>260||(lifetime>190&&lifetime<250)) {
+            stroke(255, 0, 0);
+            fill(255, 112, 112);
+            strokeWeight(6);
+            rect(dots[i].x-10, dots[i].y-10,20,20);//Draw Dots  
+            fill(201, 201, 201);
+            noStroke();
+            triangle(dots[i].x-13,dots[i].y,dots[i].x-23,dots[i].y-10,dots[i].x-23,dots[i].y+10);
+            triangle(dots[i].x+13,dots[i].y,dots[i].x+23,dots[i].y-10,dots[i].x+23,dots[i].y+10);
+        } else {
+            fill(255, 211, 99);
+            ellipse(dots[i].x, dots[i].y,20,20);//Draw Dots
+        }
+        if(!paused) {
+            dots[i].x-=speed;//Move dots
+        }
+        if(dots[i].x>75&&dots[i].x<160&&dots[i].y>y-5&&dots[i].y<y+80) {
+            gameScreen = 3;//Collision This is how to hack
+        }
+    }
+    fill(255, 211, 99);
+    if(lifetime>260) {
+        candyexplorer();
+    } else if(lifetime>250) {
+        invisible();    
+    } else if(lifetime>190) {
+        candyexplorer();
+    } else if(lifetime>170) {
+        bluesea();
+    } else if(lifetime>120&&!paused) {
+        nyansquare();
+    } else if(lifetime>80&&lifetime<=120&&!paused) {
+        electricblue();
+    } else if(lifetime>40&&lifetime<=80&&!paused) {
+        hotpink();
+    } else if(!paused) {
+        thegreen();
+    }
+};
+var death = function() {
+    background(179, 48, 48);
+    fill(255, 211, 99);
+    noStroke();
+    rect(280,265,80,50);
+    fill(255, 211, 99,199);
+    rect(280,265,10,150);
+    fill(255, 211, 99);
+    textSize(45);
+    text("You Lost",191.5,215);
+    rect(45,65,140,40,0);
+    if(mouseX>45&&mouseX<185&&mouseY>65&&mouseY<105) {
+        cursor(HAND);
+        if(mouseIsPressed) {
+            dots=[];
+            for(var i = 0; i < 500; i++) {
+                dots.push({x:400+i*100,y:random(0,400)});
+            }
+            speed = 0;
+            primaryColor = color(48, 179, 64);
+            if(highscore<lifetime) {
+                highscore = lifetime;
+            }
+            lifetime = 0;
+            backgroundcounter=0;
+            paused = false;
+            bubblex = 70;
+            bubblesize = 0;
+            bubbley = 37.5;
+            gameScreen = 1;
+        }
+    } else {
+        this.cursor();
+    }
+    ellipse(317.5,203,osize,osize);
+    osize++;
+    if(osize>20) {
+        osize = 0;
+    }
+    rect(80,y,75,75,5);
+    stroke(255,211,99,200);
+    line(random(115,125),random(135,160),random(115,125),random(135,160));
+    strokeWeight(5);
+    y = 165;
+    fill(179, 48, 48);
+    noStroke();
+    stroke(179, 48, 48);
+    textSize(30);
+    text("Retry",80,95);
+    text(lifetime,300,300);
+    text("x",135,y+30);
+    noFill();
+    arc(145,y+55,30,20,-510,-360);
+    stroke(255,211,99);
+    strokeWeight(2);
+};
+var countLifetime = function() {
+    if(!paused) {
+        backgroundcounter++;
+        if(backgroundcounter%25===0) {
+            lifetime++;
+        }
+    }
+};
+var levels = function() {
+    background(48, 179, 64);
+    fill(255, 255, 255);
+    textSize(40);
+    text("The Green\nHot Pink\nElectric Blue\nNyan Square\nJumping Hopper\nCandy Explorer",80,95);
+    textSize(15);
+    text("On Electric Blue avoid the electric wires",30,370);
+    text("Tap to go back",30,40);
+    if(mouseY<60) {
+        cursor(HAND);
+        if(mouseIsPressed) {
+            gameScreen = 1;
+        }
+    } else {
+        this.cursor();
+    }
+};
+var draw = function() {
+    if(gameScreen===0) {
+    background(117, 214, 143);
+    fill(146, 224, 169);
+    noStroke();
+    timer++;
+    //triangle(400,0,400,400,100,400);
+    textSize(titlesize);
+    fill(20, 20, 20,transparency);
+    text("πceratops",titlex,titley);
+    transparency+=2;
+    if(timer>200) {
+    if(titlesize>50) {
+        titlesize-=5;
+    }
+    if(titlex<90) {
+        titlex++;
+    }
+    if(titley>220) {
+        titley-=1.5;
+    } else {
+        transparency-=15;
+    }
+    if(timer>320) {
+        transparency+=30;
+        stroke(0, 0, 0);
+        strokeWeight(10);
+        line(linex,300,linex+linesize,300);
+        linesize+=5;
+        if(linesize>300) {
+            transparency-=30;
+            if(transparency<0) {
+                gameScreen = 1;
+            }
+        }
+    }
+    }
+    textSize(15);
+    if(timer>100) {
+        text("Tap to skip",150,380);
+    }
+    if(mouseIsPressed) {
+        gameScreen = 1;
+    }
+    }
+    switch(gameScreen) {
+        case 1:
+            home();
+            break;
+        case 2:
+            play();
+            countLifetime();
+            break;
+        case 3:
+            death();
+            break;
+        case 4:
+            levels();
+            break;
+    }
+};
+var mouseOver = function() {
+    paused = false;
+};
+var mouseOut = function() {
+    paused = true;
+};
